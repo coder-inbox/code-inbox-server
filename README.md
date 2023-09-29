@@ -236,7 +236,44 @@ Now that you have your Nylas project set up, you need to set the Client ID, Clie
 
 By setting the `NYLAS_CLIENT_ID`, `NYLAS_CLIENT_SECRET` and `NYLAS_SYSTEM_TOKEN` environment variables, your application will have the necessary credentials to authenticate and interact with the Nylas API for email and scheduling functionality. These credentials are essential for secure communication with Nylas services.
 
-### 7. Run The Project Locally
+### 7. Create an OpenAI Account and Configure the API Key
+
+To use OpenAI's services in your application, you need to create an OpenAI account and obtain an API key. Follow these steps to set up your OpenAI account and configure the API key:
+
+#### 7.1 Create an OpenAI Account
+
+1. **Register for an OpenAI Account:** Go to the official OpenAI website at [https://www.openai.com](https://www.openai.com).
+   ![Register for an OpenAI Account](static/openai-website.png)
+
+1. **Sign Up:** Click on the "Log In" button to create a new OpenAI account. You may need to provide some basic information during the registration process.
+
+#### 7.2 Generate Your OpenAI API Key
+
+After registering for an OpenAI account, you'll need to generate an API key to access OpenAI's services:
+
+1. **Access the API Keys Page:** Once you've logged in to your OpenAI account, go to the API Keys page at [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys).
+
+1. **Generate a Secret Key:** On the API Keys page, you can generate a new secret key. Click on the "Create new secret key" button to create a new API key.
+   ![OpenAI Account keys](static/generate-openai-token.png)
+
+1. **Copy the Secret Key:** After generating the API key, OpenAI will provide you with a secret key. This is a confidential credential that should be kept secure.
+
+#### 7.3 Set Your OpenAI API Key
+
+Now that you have generated your OpenAI API key, you'll need to configure it in your project:
+
+1. **Update Your Environment Variables:** Open your project's configuration file or `.env` file, where you store environment variables.
+
+2. **Set the OpenAI API Key:** In your configuration file, add the following environment variable, replacing `<Your_OpenAI_API_Key>` with the actual secret key you obtained from the OpenAI platform:
+     ```yaml
+     # OpenAI
+     OPENAI_API_KEY=<Your_OpenAI_API_Key>
+     ```
+   - Save the changes to your configuration file.
+
+By setting the `OPENAI_API_KEY` environment variable, your application will have the necessary credentials to authenticate and interact with the OpenAI API. This API key allows your application to access OpenAI's language models and services securely.
+
+### 8. Run The Project Locally
 
 ```sh
 make run
