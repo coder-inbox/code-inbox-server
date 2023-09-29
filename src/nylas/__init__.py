@@ -3,10 +3,10 @@ Nylas package.
 """
 
 from src.nylas import (
+    crud,
+    models,
     router,
     schemas,
-    crud,
-    models
 )
 
 __all__ = ["crud", "models", "router", "schemas"]

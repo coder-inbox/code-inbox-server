@@ -27,7 +27,7 @@ class AccessToken(Model):
 
     Args:
         Model (odmantic.Model): The base Odmantic model.
-        
+
     Attributes:
         user (ObjectId): The user id associated with the access token.
         tokens (List[str]): A list of access tokens.

@@ -22,22 +22,43 @@ Functions:
     login_user: Fetch and return serialized user info upon logging in.
     find_existed_token: Find a token in a token list.
 """
-from bson import ObjectId
-
+from bson import (
+    ObjectId,
+)
+from datetime import (
+    datetime,
+)
+from fastapi.encoders import (
+    jsonable_encoder,
+)
+from odmantic.session import (
+    AIOSession,
+)
 import os
-from datetime import datetime, timedelta
-from fastapi.encoders import jsonable_encoder
-from odmantic.session import AIOSession
-from pydantic import EmailStr
+from pydantic import (
+    EmailStr,
+)
+from typing import (
+    Any,
+    Dict,
+    Optional,
+)
 
-from typing import Any, Dict, Optional, Union, List
-from src.nylas import models as nylas_models, schemas as nylas_schemas
-from src.users import models as users_models, schemas as users_schemas
-from src.config import settings
+from src.config import (
+    settings,
+)
+from src.nylas import (
+    models as nylas_models,
+)
+from src.users import (
+    models as users_models,
+    schemas as users_schemas,
+)
+
 
 async def create_user(
     email: EmailStr, session: AIOSession
-) -> users_models.User:
+) -> Optional[users_models.User]:
     """
     A method to insert a user into the users table.
 
@@ -49,17 +70,22 @@ async def create_user(
         users_models.User: A User model instance.
     """
     try:
-        from src.main import code_app
+        from src.main import (
+            code_app,
+        )
+
         full_name = code_app.state.nylas.account.get("name")
         user = users_models.User(full_name=full_name, email=email)
         await session.save(user)
         return user
     except Exception as e:
         print(f"Error creating user: {e}")
+        return None
+
 
 async def find_existed_user(
     email: EmailStr, session: AIOSession
-) -> Optional[users_models.User]:
+) -> users_models.User:
     """
     A method to fetch user info given an email.
 
@@ -70,17 +96,15 @@ async def find_existed_user(
     Returns:
         Optional[users_models.User]: The current user object, if found.
     """
-    try:
-        user = await session.find_one(
-            users_models.User, users_models.User.email == email
-        )
-        return user
-    except Exception as e:
-        print(f"Error finding user: {e}")
+    user = await session.find_one(
+        users_models.User, users_models.User.email == email
+    )
+    return user
+
 
 async def find_existed_user_id(
     user_id: str, session: AIOSession
-) -> Optional[users_schemas.UserObjectSchema]:
+) -> users_schemas.UserObjectSchema:
     """
     A method to fetch user info given an ID.
 
@@ -91,19 +115,13 @@ async def find_existed_user_id(
     Returns:
         Optional[users_schemas.UserObjectSchema]: The current user object, if found.
     """
-    try:
-        user = await session.find_one(
-            users_models.User, users_models.User.id == ObjectId(user_id)
-        )
-        if user:
-            return users_schemas.UserObjectSchema(**jsonable_encoder(user))
-        return None
-    except Exception as e:
-        print(f"Error finding user by ID: {e}")
+    user = await session.find_one(
+        users_models.User, users_models.User.id == ObjectId(user_id)
+    )
+    return users_schemas.UserObjectSchema(**jsonable_encoder(user))
 
-async def login_user(
-    token: str, session: AIOSession
-) -> Dict[str, Union[int, str, Dict[str, Any], str]]:
+
+async def login_user(token: str, session: AIOSession) -> Dict[str, Any]:
     """
     A method to fetch and return serialized user info upon logging in.
 
@@ -112,51 +130,57 @@ async def login_user(
         session (AIOSession): Odmantic session object.
 
     Returns:
-        Dict[str, Union[int, str, Dict[str, Any], str]]: A dictionary containing:
+        Dict[str, Any]: A dictionary containing:
             - 'status_code' (int): HTTP status code.
             - 'message' (str): A welcome message.
             - 'user' (Dict[str, Any]): User information.
             - 'token' (str): Access token.
     """
-    try:
-        from src.main import code_app
+    from src.main import (
+        code_app,
+    )
 
-        access_token_obj = code_app.state.nylas.send_authorization(token)
-        access_token = access_token_obj['access_token']
-        email_address = access_token_obj['email_address']
+    access_token_obj = code_app.state.nylas.send_authorization(token)
+    access_token = access_token_obj["access_token"]
+    email_address = access_token_obj["email_address"]
 
-        user_obj = await find_existed_user(email_address, session)
-        print(user_obj)
+    user_obj = await find_existed_user(email_address, session)
+    print(user_obj)
 
-        if not user_obj:
-            await create_user(email_address, session)
-            del user_obj
+    if not user_obj:
+        await create_user(email_address, session)
+        del user_obj
 
-        user_obj = await find_existed_user(email_address, session)
+    user_obj = await find_existed_user(email_address, session)
 
-        token = await session.find_one(
-            nylas_models.AccessToken, nylas_models.AccessToken.user == user_obj.id
+    find_token = await session.find_one(
+        nylas_models.AccessToken,
+        nylas_models.AccessToken.user == user_obj.id,
+    )
+
+    if not find_token:
+        find_token = nylas_models.AccessToken(
+            user=user_obj.id,
+            tokens=[access_token],
         )
+    else:
+        tokens = find_token.tokens
+        tokens.extend([access_token])
+        find_token.update(
+            {
+                "user": user_obj.id,
+                "tokens": tokens,
+                "modified_date": datetime.utcnow(),
+            }
+        )
+    await session.save(find_token)
+    return {
+        "status_code": 200,
+        "message": "Welcome back!",
+        "user": jsonable_encoder(user_obj),
+        "token": access_token,
+    }
 
-        if not token:
-            token = nylas_models.AccessToken(
-                user=user_obj.id,
-                tokens=[access_token],
-            )
-        else:
-            tokens = token.tokens
-            tokens.extend([access_token])
-            token.update(
-                {
-                    "user": user_obj.id,
-                    "tokens": tokens,
-                    "modified_date": datetime.utcnow(),
-                }
-            )
-        await session.save(token)
-        return {"status_code": 200, "message": "Welcome back!", "user": jsonable_encoder(user_obj), "token": access_token}
-    except Exception as e:
-        print(f"Error logging in user: {e}")
 
 async def find_existed_token(
     email: EmailStr, token: str, session: AIOSession
@@ -181,14 +205,15 @@ async def find_existed_token(
             tokens = token_obj.tokens
             if token in tokens:
                 return user
-        except Exception:
+        except Exception as e:
             print(f"Error finding token: {e}")
         return None
     except Exception as e:
         print(f"Error finding token: {e}")
         return None
 
-async def send_welcome_email(to):
+
+async def send_welcome_email(to: str) -> None:
     """
     Send a welcome email to a specified recipient.
 
@@ -209,7 +234,9 @@ async def send_welcome_email(to):
     Example:
         send_welcome_email("user@example.com")
     """
-    from src.main import code_app
+    from src.main import (
+        code_app,
+    )
 
     # Store the initial access token
     initial_token = code_app.state.nylas.access_token
@@ -221,20 +248,24 @@ async def send_welcome_email(to):
     draft = code_app.state.nylas.drafts.create()
 
     # Read the HTML content of the welcome email from a file
-    with open(os.path.join(os.getcwd(), "static", "welcome_email.html"), "r", encoding="utf-8") as file:
+    with open(
+        os.path.join(os.getcwd(), "static", "welcome_email.html"),
+        "r",
+        encoding="utf-8",
+    ) as file:
         html_content = file.read()
 
     # Set the email subject
-    draft['subject'] = "Welcome to Code Inbox 🚀"
+    draft["subject"] = "Welcome to Code Inbox 🚀"
 
     # Set the recipient's email address
-    draft['to'] = [{"email": to}]
+    draft["to"] = [{"email": to}]
 
     # Set the email body to the HTML content
-    draft['body'] = html_content
+    draft["body"] = html_content
 
     # Set the sender's email address from the Nylas account
-    draft['from'] = [{'email': code_app.state.nylas.account.email_address}]
+    draft["from"] = [{"email": code_app.state.nylas.account.email_address}]
 
     # TODO: use draft.send_raw ???
     draft.send()

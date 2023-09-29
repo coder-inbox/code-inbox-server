@@ -11,15 +11,15 @@ from functools import (
 )
 import logging
 from typing import (
-    Any,
     Dict,
 )
 import uvicorn
-from src.nylas import (
-    router as nylas_router,
-)
+
 from src.config import (
     settings,
+)
+from src.nylas import (
+    router as nylas_router,
 )
 from src.users import (
     router as users_router,
@@ -108,7 +108,9 @@ def get_app() -> FastAPI:
 
     return app
 
+
 code_app = get_app()
+
 
 def serve() -> None:
     """
@@ -124,6 +126,7 @@ def serve() -> None:
         )
     except Exception as err:
         logger.error(repr(err))
+
 
 __all__ = [
     "serve",

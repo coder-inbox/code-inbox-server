@@ -49,13 +49,13 @@ class Settings(BaseSettings):
     DEBUG: str = os.getenv("DEBUG")  # type: ignore
     CORS_ORIGINS: str = os.getenv("CORS_ORIGINS")  # type: ignore
     DETA_PROJECT_KEY: str = os.getenv("DETA_PROJECT_KEY")  # type: ignore
-    NYLAS_CLIENT_ID: str = os.getenv("NYLAS_CLIENT_ID")
-    NYLAS_CLIENT_SECRET: str = os.getenv("NYLAS_CLIENT_SECRET")
-    NYLAS_API_SERVER: str = os.getenv("NYLAS_API_SERVER")
-    CLIENT_URI: str = os.getenv("CLIENT_URI")
-    NYLAS_SYSTEM_TOKEN: str = os.getenv("NYLAS_SYSTEM_TOKEN")
-    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
-    
+    NYLAS_CLIENT_ID: str = os.getenv("NYLAS_CLIENT_ID")  # type: ignore
+    NYLAS_CLIENT_SECRET: str = os.getenv("NYLAS_CLIENT_SECRET")  # type: ignore
+    NYLAS_API_SERVER: str = os.getenv("NYLAS_API_SERVER")  # type: ignore
+    CLIENT_URI: str = os.getenv("CLIENT_URI")  # type: ignore
+    NYLAS_SYSTEM_TOKEN: str = os.getenv("NYLAS_SYSTEM_TOKEN")  # type: ignore
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")  # type: ignore
+
     class Config:  # pylint: disable=R0903
         """
         A class used to set Pydantic configuration for env vars.

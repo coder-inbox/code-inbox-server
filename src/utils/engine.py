@@ -25,19 +25,20 @@ from odmantic import (
     AIOEngine,
 )
 
+from nylas import (
+    APIClient,
+)
 from src.config import (
     settings,
 )
-
 from src.utils import (
     openai_api,
 )
 
-from nylas import APIClient
 
 async def init_engine_app(app: FastAPI) -> None:
     """Initialize Engine App
-    
+
     Creates database and connections to the database.
 
     This function creates a MongoDB client instance,
@@ -63,5 +64,9 @@ async def init_engine_app(app: FastAPI) -> None:
         app_settings.NYLAS_CLIENT_SECRET,
         app_settings.NYLAS_API_SERVER,
     )
-    app.state.nylas.update_application_details(redirect_uris=[app_settings.CLIENT_URI])
-    app.state.openai = openai_api.OpenAIAPI(api_token=app_settings.OPENAI_API_KEY)
+    app.state.nylas.update_application_details(
+        redirect_uris=[app_settings.CLIENT_URI]
+    )
+    app.state.openai = openai_api.OpenAIAPI(
+        api_token=app_settings.OPENAI_API_KEY
+    )
