@@ -77,6 +77,7 @@ class User(Model):
         - email (EmailStr): User's email address.
         - profile_picture (Optional[str]): URL to the user's profile picture.
         - phone_number (Optional[str]): User's phone number.
+        - programming_language (Optional[str]): User's programming language.
         - calendar (Optional[str]): User's calendar ID.
         - user_status (Optional[UserStatus]): User's status (default: ACTIVE).
         - user_role (Optional[UserRole]): User's role (default: REGULAR).
@@ -96,6 +97,9 @@ class User(Model):
     )
     phone_number: Optional[str] = Field(
         default="", description="User's phone number."
+    )
+    programming_language: Optional[str] = Field(
+        default="", description="User's programming language."
     )
     calendar: Optional[str] = Field(
         default="", description="User's calendar ID."

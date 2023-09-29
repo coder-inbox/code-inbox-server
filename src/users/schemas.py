@@ -100,9 +100,15 @@ class PersonalInfo(BaseModel):
         ..., example="Full name.", description="User's full name."
     )
     bio: str = Field(..., example="bio.", description="User's bio.")
-    birthday: str = Field(
-        ..., example="birthday.", description="User's birthday."
+    programming_language: str = Field(
+        ..., example="python", description="User's programming language."
     )
-    phone_number: str = Field(
-        ..., example="123456789", description="User's phone number."
-    )
+
+
+class LogoutSchema(BaseModel):
+    """Personal Information
+
+    A Pydantic class that defines the user schema for logging out a user.
+    """
+
+    token: str = Field(..., example="123456789", description="User's token.")

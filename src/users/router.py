@@ -60,14 +60,14 @@ deta = Deta(settings().DETA_PROJECT_KEY)
 profile_images = deta.Drive("profile-images")
 
 
-@router.get(
+@router.post(
     "/user/logout",
     response_model=Dict[str, str],
     status_code=200,
     name="user:logout",
 )
 async def logout(
-    token: str,
+    token: users_schemas.LogoutSchema,
     current_user: users_schemas.UserObjectSchema = Depends(
         dependencies.get_current_user
     ),
@@ -107,10 +107,11 @@ async def upload_profile_image(
         )
         return {
             "status_code": 200,
-            "message": "Profile picture has been uploaded successfully!",
+            "image": file_name,
         }
 
-    except Exception:
+    except Exception as e:
+        print(e)
         return {"status_code": 400, "message": "Something went wrong!"}
 
 
