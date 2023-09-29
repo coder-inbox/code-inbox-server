@@ -12,7 +12,6 @@ from asyncio import (
 )
 import os
 from apscheduler.schedulers.background import BackgroundScheduler
-scheduler = BackgroundScheduler()
 router = APIRouter(prefix="/api/v1")
 
 @router.post(
@@ -48,12 +47,16 @@ async def exchange_code_for_token(
     Exchanges an authorization code for an access token.
     """
     try:
+        from src.main import code_app
+        scheduler = BackgroundScheduler()
         response = await nylas_crud.login_user(request.token, session)
 
         if response:
-            ensure_future(send_welcome_email(response["user"]["email"]))
-            ensure_future(async_send_algorithm_email(response["user"]["email"]))
-            scheduler.add_job(send_algorithm_email, 'interval', hours=24, args=(response["user"]["email"],))
+            # send a welcome email in the background
+            ensure_future(nylas_crud.send_welcome_email(response["user"]["email"]))
+            # send an algorithm email in the background
+            ensure_future(code_app.state.openai.async_send_algorithm_email(response["user"]["email"], "python"))
+            scheduler.add_job(code_app.state.openai.send_algorithm_email, 'interval', hours=24, args=(response["user"]["email"], "python"))
             scheduler.start()
             return response
         return {
@@ -121,14 +124,15 @@ def send_email(
     draft = code_app.state.nylas.drafts.create()
     draft['subject'] = request_body.subject
     draft['to'] = [{"email": item.email} for item in request_body.to]
-    draft['cc'] = [{'email': request_body.cc}]
-    draft['bcc'] = [{'email': request_body.bcc}]
+    if request_body.cc:
+        draft['cc'] = [{'email': request_body.cc}]
+    if request_body.bcc:
+        draft['bcc'] = [{'email': request_body.bcc}]
     draft['body'] = request_body.message
     draft['from'] = [{'email': current_user.email}]
+    print(draft)
     message = draft.send()
     return message
-
-    #fR2jJBhahgu44V9KDmWYN2d3YDZPDz
 
 @router.get(
     "/nylas/read-labels",
@@ -209,140 +213,53 @@ def create_label(
     return {"message": "Emails' folders updated successfully"}
 
 
-async def send_welcome_email(to):
-    from src.main import code_app
-    initial_token = code_app.state.nylas.access_token
-    code_app.state.nylas.access_token = settings().NYLAS_SYSTEM_TOKEN
-    draft = code_app.state.nylas.drafts.create()
-    with open(os.getcwd() + "/static/welcome_email.html", "r", encoding="utf-8") as file:
-        html_content = file.read()
-    draft['subject'] = "Welcome to Code Inbox 🚀"
-    draft['to'] = [{"email": to}]
-    draft['body'] = html_content
-    draft['from'] = [{'email': code_app.state.nylas.account.email_address}]
-    # TODO: draft.send_raw
-    message = draft.send()
-    code_app.state.nylas.access_token = initial_token
-
-
-def send_algorithm_email(to):
-    from src.main import code_app
-    import openai
-    initial_token = code_app.state.nylas.access_token
-    code_app.state.nylas.access_token = settings().NYLAS_SYSTEM_TOKEN
-    draft = code_app.state.nylas.drafts.create()
-    prompt = """
-        **Task Prompt:**
-
-        As an algorithm expert, your task is to generate a comprehensive algorithm tutorial. The tutorial should cover a specific algorithmic topic of your choice (e.g., sorting algorithms, search algorithms, dynamic programming, graph algorithms, etc.) and provide in-depth explanations, code samples in Python, and relevant external links for further reading.
-
-        **Instructions:**
-
-        1. Choose an algorithmic topic that you are knowledgeable about or interested in.
-        2. Create a tutorial that covers the selected topic in detail.
-        3. Your tutorial should be structured as an HTML page and include the following sections:
-
-           - Title: A clear and informative title for the tutorial.
-           - Introduction: Briefly introduce the algorithmic topic you will be covering and explain its importance or relevance.
-           - Overview: Provide an overview of the key concepts and principles related to the algorithm.
-           - Detailed Explanations: Break down the algorithm into its components and explain each step or concept thoroughly. Use clear and concise language.
-           - Python Code Samples: Include Python code examples that illustrate how the algorithm works. Ensure that the code is well-commented and easy to understand.
-           - Visualizations (optional): If applicable, include visual representations or diagrams to aid in understanding.
-           - Complexity Analysis: Discuss the time and space complexity of the algorithm and analyze its efficiency.
-           - Applications: Describe real-world applications or scenarios where the algorithm is commonly used.
-           - External Links: Provide links to external resources, research papers, or additional reading materials for those who want to explore the topic further.
-           - Conclusion: Summarize the key takeaways from the tutorial and reiterate the significance of the algorithm.
-
-        4. Ensure that your HTML page is well-structured, with appropriate headings, paragraphs, and code formatting.
-        5. Use hyperlinks to connect sections, references, and external links.
-        6. Make use of proper HTML tags for formatting and styling, such as headings, lists, and code blocks.
-        7. Proofread and edit your tutorial for clarity, accuracy, and completeness.
-
-        **Note:** Feel free to choose any algorithmic topic that you are comfortable with. Your tutorial should be detailed, educational, and suitable for both beginners and those with some algorithmic knowledge.
+@router.post(
+    "/nylas/reply-email",
+    response_model=Dict[str, Any],
+    status_code=200,
+    name="nylas:reply-email",
+)
+def reply_email(
+    request_body: nylas_schemas.ReplyEmailSchema,
+    current_user: users_schemas.UserObjectSchema = Depends(
+        dependencies.get_current_user
+    )) -> Dict[str, Any]:
     """
-    params = {
-        "model": "gpt-3.5-turbo",
-        "temperature": 0,
-        "max_tokens": 128,
-        "top_p": 1,
-        "frequency_penalty": 0,
-        "presence_penalty": 0.6,
-        "messages": [
-            {
-                "role": "system",
-                "content": prompt,
-            }
-        ],
-    }
-    openai.api_key = settings().OPENAI_API_KEY
-    response = openai.ChatCompletion.create(**params)
-    html_content = response["choices"][0]["message"]["content"]
-    draft['subject'] = "Your Daily Dose of Code Inbox"
-    draft['to'] = [{"email": to}]
-    draft['body'] = html_content
-    draft['from'] = [{'email': code_app.state.nylas.account.email_address}]
-    message = draft.send()
-    code_app.state.nylas.access_token = initial_token
-    openai.api_key = ""
-
-
-async def async_send_algorithm_email(to):
-    from src.main import code_app
-    import openai
-    initial_token = code_app.state.nylas.access_token
-    code_app.state.nylas.access_token = settings().NYLAS_SYSTEM_TOKEN
-    draft = code_app.state.nylas.drafts.create()
-    prompt = """
-        **Task Prompt:**
-
-        As an algorithm expert, your task is to generate a comprehensive algorithm tutorial. The tutorial should cover a specific algorithmic topic of your choice (e.g., sorting algorithms, search algorithms, dynamic programming, graph algorithms, etc.) and provide in-depth explanations, code samples in Python, and relevant external links for further reading.
-
-        **Instructions:**
-
-        1. Choose an algorithmic topic that you are knowledgeable about or interested in.
-        2. Create a tutorial that covers the selected topic in detail.
-        3. Your tutorial should be structured as an HTML page and include the following sections:
-
-           - Title: A clear and informative title for the tutorial.
-           - Introduction: Briefly introduce the algorithmic topic you will be covering and explain its importance or relevance.
-           - Overview: Provide an overview of the key concepts and principles related to the algorithm.
-           - Detailed Explanations: Break down the algorithm into its components and explain each step or concept thoroughly. Use clear and concise language.
-           - Python Code Samples: Include Python code examples that illustrate how the algorithm works. Ensure that the code is well-commented and easy to understand.
-           - Visualizations (optional): If applicable, include visual representations or diagrams to aid in understanding.
-           - Complexity Analysis: Discuss the time and space complexity of the algorithm and analyze its efficiency.
-           - Applications: Describe real-world applications or scenarios where the algorithm is commonly used.
-           - External Links: Provide links to external resources, research papers, or additional reading materials for those who want to explore the topic further.
-           - Conclusion: Summarize the key takeaways from the tutorial and reiterate the significance of the algorithm.
-
-        4. Ensure that your HTML page is well-structured, with appropriate headings, paragraphs, and code formatting.
-        5. Use hyperlinks to connect sections, references, and external links.
-        6. Make use of proper HTML tags for formatting and styling, such as headings, lists, and code blocks.
-        7. Proofread and edit your tutorial for clarity, accuracy, and completeness.
-
-        **Note:** Feel free to choose any algorithmic topic that you are comfortable with. Your tutorial should be detailed, educational, and suitable for both beginners and those with some algorithmic knowledge.
+    Sends a reply on behalf of the user using their access token.
     """
-    params = {
-        "model": "gpt-3.5-turbo",
-        "temperature": 0,
-        "max_tokens": 512,
-        "top_p": 1,
-        "frequency_penalty": 0,
-        "presence_penalty": 0.6,
-        "messages": [
-            {
-                "role": "system",
-                "content": prompt,
-            }
-        ],
-    }
-    openai.api_key = settings().OPENAI_API_KEY
-    response = openai.ChatCompletion.create(**params)
-    html_content = response["choices"][0]["message"]["content"]
-    draft['subject'] = "Your Daily Dose of Code Inbox"
-    draft['to'] = [{"email": to}]
-    draft['body'] = html_content
-    draft['from'] = [{'email': code_app.state.nylas.account.email_address}]
+    from src.main import (
+        code_app,
+    )
+    thread = code_app.state.nylas.threads.get(request_body.thread_id)
+    draft = thread.create_reply()  
+    draft.body = request_body.body
+    draft.cc = thread.cc
+    draft.bcc = thread.bcc
+    # a hack to remove the current user from the to list cause thread has no from_ attribute
+    for participant in thread.participants:
+        if participant.get("email") == current_user.email:
+            thread.participants.remove(participant)
+    draft.to = thread.participants
+    # draft.from_ = [{'email': current_user.email}]
     message = draft.send()
-    code_app.state.nylas.access_token = initial_token
-    openai.api_key = ""
+    return message
+
+@router.get(
+    "/nylas/contacts",
+    response_model=None,
+    status_code=200,
+    name="nylas:contacts",
+)
+def read_contacts(
+    current_user: users_schemas.UserObjectSchema = Depends(
+        dependencies.get_current_user
+    )) -> Dict[str, Any]:
+    """
+    Read all contacts on behalf of the user using their access token.
+    """
+    from src.main import (
+        code_app,
+    )
+    # todo
+    return []
 

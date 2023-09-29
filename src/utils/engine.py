@@ -29,6 +29,10 @@ from src.config import (
     settings,
 )
 
+from src.utils import (
+    openai_api,
+)
+
 from nylas import APIClient
 
 async def init_engine_app(app: FastAPI) -> None:
@@ -60,3 +64,4 @@ async def init_engine_app(app: FastAPI) -> None:
         app_settings.NYLAS_API_SERVER,
     )
     app.state.nylas.update_application_details(redirect_uris=[app_settings.CLIENT_URI])
+    app.state.openai = openai_api.OpenAIAPI(api_token=app_settings.OPENAI_API_KEY)

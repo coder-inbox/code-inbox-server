@@ -45,3 +45,8 @@ class SendEmailSchema(BaseModel):
 class CreateLabelSchema(BaseModel):
     name: str = Field(..., description="Label Name", example="Label Name")
     color: str = Field(..., description="Label Color", example="#ffffff")
+
+class ReplyEmailSchema(BaseModel):
+    thread_id: str = Field(..., description="thread id", example="6gq33fhrgpts8wmb2sl98jdvo")
+    body: str = Field(..., description="email body", example="Hello there!")
+

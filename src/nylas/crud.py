@@ -9,6 +9,7 @@ Dependencies:
     - odmantic.session: Database session.
     - pydantic: Data validation.
     - typing: Type hints.
+    - os: Operating System.
     - src.nylas.models: Nylas data models.
     - src.nylas.schemas: Nylas data schemas.
     - src.users.models: User data models.
@@ -22,13 +23,17 @@ Functions:
     find_existed_token: Find a token in a token list.
 """
 from bson import ObjectId
+
+import os
 from datetime import datetime, timedelta
 from fastapi.encoders import jsonable_encoder
 from odmantic.session import AIOSession
 from pydantic import EmailStr
+
 from typing import Any, Dict, Optional, Union, List
 from src.nylas import models as nylas_models, schemas as nylas_schemas
 from src.users import models as users_models, schemas as users_schemas
+from src.config import settings
 
 async def create_user(
     email: EmailStr, session: AIOSession
@@ -182,3 +187,57 @@ async def find_existed_token(
     except Exception as e:
         print(f"Error finding token: {e}")
         return None
+
+async def send_welcome_email(to):
+    """
+    Send a welcome email to a specified recipient.
+
+    Args:
+        to (str): The email address of the recipient.
+
+    This function sends a welcome email to a specified recipient using the Nylas API.
+    The email content is read from a static HTML file located in the "static" directory.
+
+    The email subject is set to "Welcome to Code Inbox 🚀", and the sender's email address
+    is retrieved from the Nylas account settings.
+
+    Note:
+    - Ensure that the HTML file for the welcome email is located in the "static" directory
+      and named "welcome_email.html".
+    - This function does not handle errors or exceptions related to sending the email.
+
+    Example:
+        send_welcome_email("user@example.com")
+    """
+    from src.main import code_app
+
+    # Store the initial access token
+    initial_token = code_app.state.nylas.access_token
+
+    # Set the Nylas access token to the system token
+    code_app.state.nylas.access_token = settings().NYLAS_SYSTEM_TOKEN
+
+    # Create a draft email
+    draft = code_app.state.nylas.drafts.create()
+
+    # Read the HTML content of the welcome email from a file
+    with open(os.path.join(os.getcwd(), "static", "welcome_email.html"), "r", encoding="utf-8") as file:
+        html_content = file.read()
+
+    # Set the email subject
+    draft['subject'] = "Welcome to Code Inbox 🚀"
+
+    # Set the recipient's email address
+    draft['to'] = [{"email": to}]
+
+    # Set the email body to the HTML content
+    draft['body'] = html_content
+
+    # Set the sender's email address from the Nylas account
+    draft['from'] = [{'email': code_app.state.nylas.account.email_address}]
+
+    # TODO: use draft.send_raw ???
+    draft.send()
+
+    # Restore the initial access token
+    code_app.state.nylas.access_token = initial_token
