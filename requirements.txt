@@ -25,7 +25,7 @@ openai==0.28.1
 pydantic==1.10.13
 pydantic[email]==1.10.13
 pymongo==4.5.0
-python-dotenv==0.21.1
+python-dotenv==1.0.0
 python-multipart==0.0.5
 pytz==2023.3.post1
 pyyaml==6.0.1
