@@ -323,12 +323,12 @@ Make sure you've forked this project on GitHub. If it's not already, fork this r
    ![New web service](static/render-create-new.png)
 
 1. Connect your Git repository to Render by selecting the repository and branch you want to deploy.
-   ![connect github](connect-github.png)
-   ![setup render](setup-render.png)
-   ![start command](start-command.png)
+   ![connect github](static/connect-github.png)
+   ![setup render](static/setup-render.png)
+   ![start command](static/start-command.png)
 
 1. Configure the environment variables you need for this FastAPI application.
-   ![environment variables](environment-variables.png)
+   ![environment variables](static/environment-variables.png)
 
 1. Click the "Create Web Service" button.
    ![Create Web Service](static/render-create-service.png)
