@@ -31,9 +31,6 @@ from fastapi import (
     UploadFile,
     responses,
 )
-from fastapi.encoders import (
-    jsonable_encoder,
-)
 from odmantic.session import (
     AIOSession,
 )
@@ -67,7 +64,7 @@ profile_images = deta.Drive("profile-images")
     "/user/logout",
     response_model=Dict[str, str],
     status_code=200,
-    name="user:logout"
+    name="user:logout",
 )
 async def logout(
     token: str,
@@ -75,7 +72,7 @@ async def logout(
         dependencies.get_current_user
     ),
     session: AIOSession = Depends(dependencies.get_db_transactional_session),
-) -> Dict[str, str]:
+) -> Dict[str, Any]:
     """
     Log out a user from the app by removing the access token from the list.
     """
@@ -90,7 +87,7 @@ async def logout(
     "/user/profile-image",
     response_model=None,
     status_code=200,
-    name="user:profile-image"
+    name="user:profile-image",
 )
 async def upload_profile_image(
     file: UploadFile = File(...),
@@ -121,7 +118,7 @@ async def upload_profile_image(
     "/user/{user_id}/profile.png",
     response_model=None,
     status_code=200,
-    name="user:profile-user-image"
+    name="user:profile-user-image",
 )
 async def get_profile_user_image(
     user_id: str,
@@ -142,7 +139,7 @@ async def get_profile_user_image(
     "/user/profile",
     response_model=Dict[str, str],
     status_code=200,
-    name="user:profile-image"
+    name="user:profile-image",
 )
 async def update_personal_information(
     personal_info: users_schemas.PersonalInfo,

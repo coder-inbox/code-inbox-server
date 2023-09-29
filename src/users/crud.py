@@ -1,11 +1,15 @@
 """🛠️ Users CRUD Module 📦
 
-This module contains functions for performing CRUD (Create, Read, Update, Delete) operations related to user data.
+This module contains functions for performing CRUD (Create, Read, Update, Delete)
+operations related to user data.
 
 Functions:
-    - remove_token(user_id: ObjectId, token: str, session: AIOSession) -> None: Remove a token from a user's token list.
-    - update_profile_picture(email: EmailStr, file_name: str, session: AIOSession) -> None: Update a user's profile picture.
-    - update_user_info(personal_info: users_schemas.PersonalInfo, current_user: users_schemas.UserObjectSchema, session: AIOSession) -> None: Update a user's personal information.
+    - remove_token(user_id: ObjectId, token: str, session: AIOSession)
+        -> None: Remove a token from a user's token list.
+    - update_profile_picture(email: EmailStr, file_name: str, session: AIOSession)
+        -> None: Update a user's profile picture.
+    - update_user_info(personal_info: users_schemas.PersonalInfo, current_user:
+        users_schemas.UserObjectSchema, session: AIOSession) -> None: Update a user's personal information.
 
 Dependencies:
     - bson.ObjectId: For working with MongoDB ObjectIds.
@@ -33,13 +37,8 @@ from odmantic.session import (
 from pydantic import (
     EmailStr,
 )
-from typing import (
-    Any,
-    Dict,
-)
 
 from src.nylas import (
-    crud as nylas_crud,
     models as nylas_models,
 )
 from src.users import (
@@ -52,7 +51,7 @@ async def remove_token(
     user_id: ObjectId, token: str, session: AIOSession
 ) -> None:
     """Remove Token
-    
+
     Remove a token from a user's token list.
 
     Args:
@@ -80,7 +79,7 @@ async def update_profile_picture(
     email: EmailStr, file_name: str, session: AIOSession
 ) -> None:
     """Update Profile Picture
-    
+
     Update a user's profile picture.
 
     Args:
@@ -101,7 +100,7 @@ async def update_user_info(
     session: AIOSession,
 ) -> None:
     """Update User Info
-    
+
     Update a user's personal information.
 
     Args:

@@ -1,9 +1,12 @@
-from dataclasses import dataclass
+from dataclasses import (
+    dataclass,
+)
 import openai
-import os
+
 from src.config import (
     settings,
 )
+
 
 @dataclass
 class OpenAIAPI:
@@ -39,10 +42,10 @@ class OpenAIAPI:
     top_p: float = 1
     frequency_penalty: float = 0
     presence_penalty: float = 0.6
-    stop: str = None
-    prompt: str = None
+    stop: str = ""
+    prompt: str = ""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """
         Initializes the OpenAIAPI instance and sets the OpenAI API key.
         Raises an exception if the API token is missing.
@@ -50,7 +53,7 @@ class OpenAIAPI:
         if self.api_token is None:
             raise Exception("OpenAI API key is required")
         openai.api_key = self.api_token
-        self.prompt = """
+        self.prompt = """ # noqa: E501
             **Task Prompt:**
 
             As an algorithm expert, your task is to generate a comprehensive algorithm tutorial. The tutorial should cover a specific algorithmic topic of your choice (e.g., sorting algorithms, search algorithms, dynamic programming, graph algorithms, etc.) and provide in-depth explanations, code samples in {programming_language}, and relevant external links for further reading.
@@ -80,7 +83,7 @@ class OpenAIAPI:
             **Note:** Make sure to choose a unique algorithmic topic every day. Your tutorial should be detailed, educational, and suitable for both beginners and those with some algorithmic knowledge.
         """
 
-    def send_algorithm_email(self, to: str, language: str):
+    def send_algorithm_email(self, to: str, language: str) -> None:
         """
         Sends an algorithm-related email to the specified recipient.
 
@@ -90,7 +93,10 @@ class OpenAIAPI:
         This method generates an algorithm tutorial email using the OpenAI API
         and sends it to the specified recipient's email address.
         """
-        from src.main import code_app
+        from src.main import (
+            code_app,
+        )
+
         initial_token = code_app.state.nylas.access_token
         openai.api_key = settings().OPENAI_API_KEY
         code_app.state.nylas.access_token = settings().NYLAS_SYSTEM_TOKEN
@@ -106,22 +112,24 @@ class OpenAIAPI:
             "messages": [
                 {
                     "role": "system",
-                    "content": self.prompt.replace("{programming_language}", language),
+                    "content": self.prompt.replace(
+                        "{programming_language}", language
+                    ),
                 }
             ],
         }
 
         response = openai.ChatCompletion.create(**params)
         html_content = response["choices"][0]["message"]["content"]
-        draft['subject'] = "Your Daily Dose of Algorithms"
-        draft['to'] = [{"email": to}]
-        draft['body'] = html_content
-        draft['from'] = [{'email': code_app.state.nylas.account.email_address}]
-        message = draft.send()
+        draft["subject"] = "Your Daily Dose of Algorithms"
+        draft["to"] = [{"email": to}]
+        draft["body"] = html_content
+        draft["from"] = [{"email": code_app.state.nylas.account.email_address}]
+        draft.send()
         code_app.state.nylas.access_token = initial_token
         openai.api_key = ""
 
-    async def async_send_algorithm_email(self, to: str, language: str):
+    async def async_send_algorithm_email(self, to: str, language: str) -> None:
         """
         Asynchronously sends an algorithm-related email to the specified recipient.
 

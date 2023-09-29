@@ -1,56 +1,42 @@
 {
-  "buildpacks": [
-    {
-      "url": "heroku/python"
-    }
-  ],
-  "description": "A Fully Async-based backend for Code Inbox built using FastAPI, ODMantic, MongoDB, Deta, and friends.",
-  "env": {
-    "DEBUG": {
-      "description": "This environment variable defines the debug level.`` means production. `info` to access the docs.",
-      "required": false,
-      "value": ""
+    "buildpacks": [{"url": "heroku/python"}],
+    "description": "A Fully Async-based backend for Code Inbox built using FastAPI, ODMantic, MongoDB, Deta, and friends.",
+    "env": {
+        "DEBUG": {
+            "description": "This environment variable defines the debug level.`` means production. `info` to access the docs.",
+            "required": false,
+            "value": "",
+        },
+        "CORS_ORIGINS": {
+            "description": "Comma separated urls of the deployed client.",
+            "required": true,
+        },
+        "DETA_PROJECT_KEY": {
+            "description": "The project key of your Deta account.",
+            "required": true,
+        },
+        "MONGODB_USERNAME": {
+            "description": "This is the user name you'll be creating for remote accesses.",
+            "required": true,
+        },
+        "MONGODB_PASSWORD": {
+            "description": "The corresponding password for that user.",
+            "required": true,
+        },
+        "MONGODB_HOST": {
+            "description": "Your remote MongoDB server's domain name.",
+            "required": true,
+        },
+        "MONGODB_DATABASE": {
+            "description": "The name of the database you want to access, in our case, the `shop` database.",
+            "required": false,
+            "value": "shop",
+        },
     },
-    "CORS_ORIGINS": {
-      "description": "Comma separated urls of the deployed client.",
-      "required": true
-    },
-    "DETA_PROJECT_KEY": {
-      "description": "The project key of your Deta account.",
-      "required": true
-    },
-    "MONGODB_USERNAME": {
-      "description": "This is the user name you'll be creating for remote accesses.",
-      "required": true
-    },
-    "MONGODB_PASSWORD": {
-      "description": "The corresponding password for that user.",
-      "required": true
-    },
-    "MONGODB_HOST": {
-      "description": "Your remote MongoDB server's domain name.",
-      "required": true
-    },
-    "MONGODB_DATABASE": {
-      "description": "The name of the database you want to access, in our case, the `shop` database.",
-      "required": false,
-      "value": "shop"
-    }
-  },
-  "formation": {
-    "web": {
-      "quantity": 1,
-      "size": "free"
-    }
-  },
-  "image": "heroku/python",
-  "keywords": [
-    "fastapi",
-    "mongodb",
-    "deta",
-    "api"
-  ],
-  "name": "code-inbox-server",
-  "repository": "https://github.com/wiseaidev/code-inbox-server",
-  "success_url": "/docs"
+    "formation": {"web": {"quantity": 1, "size": "free"}},
+    "image": "heroku/python",
+    "keywords": ["fastapi", "mongodb", "deta", "api"],
+    "name": "code-inbox-server",
+    "repository": "https://github.com/wiseaidev/code-inbox-server",
+    "success_url": "/docs",
 }

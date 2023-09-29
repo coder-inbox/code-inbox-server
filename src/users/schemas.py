@@ -15,13 +15,22 @@ Attributes:
 
 """
 
-from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
+from datetime import (
+    datetime,
+)
+from pydantic import (
+    BaseModel,
+    EmailStr,
+    Field,
+)
+from typing import (
+    Optional,
+)
+
 
 class UserObjectSchema(BaseModel):
     """User Object Schema
-    
+
     A Pydantic class that defines the user schema for fetching user info.
 
     Attributes:
@@ -36,21 +45,47 @@ class UserObjectSchema(BaseModel):
         - phone_number (Optional[str]): User's phone number (default: "12314").
 
     """
-    id: str = Field(..., example="6386fc625c60cfd607e97b44", description="User's unique identifier.")
-    full_name: str = Field(..., example="Your full name", description="User's full name.")
-    bio: Optional[str] = Field(..., example="bio.", description="User's bio.")
-    birthday: Optional[str] = Field(..., example=str(datetime.utcnow().date()), description="User's birthday.")
-    email: EmailStr = Field(..., example="user@test.com", description="User's email address.")
-    profile_picture: Optional[str] = Field(
-        ..., example="A relative URL to Deta Drive.", description="A relative URL to the user's profile picture."
+
+    id: str = Field(
+        ...,
+        example="6386fc625c60cfd607e97b44",
+        description="User's unique identifier.",
     )
-    user_status: Optional[int] = Field(default=1, example=1, description="User's status (default: 1).")
-    user_role: Optional[str] = Field(default="regular", example="regular", description="User's role (default: 'regular').")
-    phone_number: Optional[str] = Field(default="12314", example="12314", description="User's phone number (default: '12314').")
+    full_name: str = Field(
+        ..., example="Your full name", description="User's full name."
+    )
+    bio: Optional[str] = Field(..., example="bio.", description="User's bio.")
+    birthday: Optional[str] = Field(
+        ...,
+        example=str(datetime.utcnow().date()),
+        description="User's birthday.",
+    )
+    email: EmailStr = Field(
+        ..., example="user@test.com", description="User's email address."
+    )
+    profile_picture: Optional[str] = Field(
+        ...,
+        example="A relative URL to Deta Drive.",
+        description="A relative URL to the user's profile picture.",
+    )
+    user_status: Optional[int] = Field(
+        default=1, example=1, description="User's status (default: 1)."
+    )
+    user_role: Optional[str] = Field(
+        default="regular",
+        example="regular",
+        description="User's role (default: 'regular').",
+    )
+    phone_number: Optional[str] = Field(
+        default="12314",
+        example="12314",
+        description="User's phone number (default: '12314').",
+    )
+
 
 class PersonalInfo(BaseModel):
     """Personal Information
-    
+
     A Pydantic class that defines the user schema for updating user info.
 
     Attributes:
@@ -60,7 +95,14 @@ class PersonalInfo(BaseModel):
         - phone_number (str): User's phone number.
 
     """
-    full_name: str = Field(..., example="Full name.", description="User's full name.")
+
+    full_name: str = Field(
+        ..., example="Full name.", description="User's full name."
+    )
     bio: str = Field(..., example="bio.", description="User's bio.")
-    birthday: str = Field(..., example="birthday.", description="User's birthday.")
-    phone_number: str = Field(..., example="123456789", description="User's phone number.")
+    birthday: str = Field(
+        ..., example="birthday.", description="User's birthday."
+    )
+    phone_number: str = Field(
+        ..., example="123456789", description="User's phone number."
+    )

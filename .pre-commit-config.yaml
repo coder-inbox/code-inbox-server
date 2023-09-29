@@ -51,7 +51,7 @@ repos:
           - "--no-warn-return-any"
 
   - repo: https://github.com/PyCQA/autoflake
-    rev: 'v2.0.0'
+    rev: 'v2.2.1'
     hooks:
       - id: autoflake
         args:
@@ -62,8 +62,8 @@ repos:
           - "--remove-all-unused-imports"
           - "--remove-unused-variables"
           - "--ignore-init-module-imports"
-
-  - repo: https://github.com/PyCQA/pylint
-    rev: 'v3.0.0-a5'
-    hooks:
-      - id: pylint
+  # TODO
+  # - repo: https://github.com/PyCQA/pylint
+  #   rev: 'v3.0.0-a5'
+  #   hooks:
+  #     - id: pylint

@@ -4,12 +4,8 @@ utils package.
 
 from src.utils import (
     dependencies,
-    openai_api,
     engine,
+    openai_api,
 )
 
-__all__ = [
-    "dependencies",
-    "engine",
-    "openai_api"
-]
+__all__ = ["dependencies", "engine", "openai_api"]

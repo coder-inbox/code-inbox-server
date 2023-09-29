@@ -8,11 +8,11 @@ from src import (
     users,
     utils,
 )
-
 from src.main import (
     get_app,
-    serve
+    serve,
 )
+
 __author__ = """Mahmoud Harmouch"""
 __email__ = "oss@wiseai.com"
 __version__ = "0.1.0"

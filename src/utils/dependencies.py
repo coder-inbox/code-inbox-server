@@ -3,9 +3,12 @@
 This module contains utility functions for handling dependencies and request sessions.
 
 Functions:
-    - get_db_transactional_session(request: Request) -> AsyncGenerator[AIOSession, None]: Create and get a transactional database session.
-    - get_current_user(authorization: str = Header(None), email: str = Header(None)) -> Optional[Dict[str, Any]]: Get the current user based on authorization headers.
-    - get_db_autocommit_session() -> AsyncGenerator[AIOSession, None]: Create and get an autocommit database session.
+    - get_db_transactional_session(request: Request) -> AsyncGenerator[AIOSession, None]:
+        Create and get a transactional database session.
+    - get_current_user(authorization: str = Header(None), email: str = Header(None))
+        -> Optional[Dict[str, Any]]: Get the current user based on authorization headers.
+    - get_db_autocommit_session() -> AsyncGenerator[AIOSession, None]:
+        Create and get an autocommit database session.
 
 Dependencies:
     - odmantic.session.AIOSession: For asynchronous database sessions.
@@ -22,6 +25,11 @@ External Dependencies:
 
 """
 
+from fastapi import (
+    Header,
+    HTTPException,
+    status,
+)
 from odmantic.session import (
     AIOSession,
 )
@@ -29,23 +37,18 @@ from starlette.requests import (
     Request,
 )
 from typing import (
+    Any,
     AsyncGenerator,
-    Optional,
     Dict,
-    Any
+    Optional,
 )
-from fastapi import (
-    Header,
-    Depends,
-    HTTPException,
-    status,
-)
+
 
 async def get_db_transactional_session(
     request: Request,
 ) -> AsyncGenerator[AIOSession, None]:
     """Get Transactional Database Session
-    
+
     Create and get an engine session for transactional operations.
 
     Args:
@@ -62,11 +65,12 @@ async def get_db_transactional_session(
         await session.end()
         request.app.state.nylas.access_token = None
 
+
 async def get_current_user(
-    authorization: str = Header(None),
-    email: str = Header(None)) -> Optional[Dict[str, Any]]:
+    authorization: str = Header(None), email: str = Header(None)
+) -> Optional[Dict[str, Any]]:
     """Get Current User
-    
+
     Get the current user based on authorization headers.
 
     Args:
@@ -87,6 +91,7 @@ async def get_current_user(
     from src.nylas import (  # pylint: disable=C0415
         crud as nylas_crud,
     )
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Unauthorized User!",
@@ -109,7 +114,7 @@ async def get_current_user(
 
 async def get_db_autocommit_session() -> AsyncGenerator[AIOSession, None]:
     """Get Autocommit Database Session
-    
+
     Create and get an engine session for autocommit operations.
 
     Yields:
