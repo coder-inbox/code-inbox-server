@@ -6,6 +6,7 @@ from pydantic import (
     Field,
 )
 from typing import (
+    List,
     Optional,
 )
 
@@ -47,7 +48,7 @@ class MailRecipient(BaseModel):
 
 
 class SendEmailSchema(BaseModel):
-    to: list[MailRecipient] = Field(
+    to: List[MailRecipient] = Field(
         ...,
         description="List of recipient email addresses",
         example=[{"name": "Receiver name", "email": "recipient@example.com"}],
@@ -66,7 +67,7 @@ class SendEmailSchema(BaseModel):
         description="Email message body",
         example="This is a test email message.",
     )
-    attachments: Optional[list[str]] = Field(
+    attachments: Optional[List[str]] = Field(
         [],
         description="List of attachment URLs",
         example=["https://example.com/attachment1.pdf"],
