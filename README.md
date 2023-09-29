@@ -107,6 +107,9 @@ make install
 
 ### 4. Setup a MongoDB Account and Configure Your Database
 
+> **Note**<br>
+The database is used to store additional user information beyond what is provided by the Nylas account object. This additional data may include items such as the user's profile picture, birth date, and other relevant details.
+
 MongoDB is a popular NoSQL database that you can use to store and manage your data. To get started with MongoDB and set up your database, follow these steps:
 
 #### 4.1 Create a MongoDB Account and Deploy a Cluster
@@ -159,7 +162,8 @@ Now that you have your MongoDB cluster set up, you need to configure your projec
 
 By setting these environment variables, your project will have the necessary credentials to connect to your MongoDB cluster and interact with your database. This configuration allows your application to store and retrieve data from MongoDB seamlessly.
 
-Please note that keeping your MongoDB credentials secure is crucial to maintaining the security of your database. In a production environment, consider using more secure access controls and practices.
+> **Note**<br>
+Keeping your MongoDB credentials secure is crucial to maintaining the security of your database. In a production environment, consider using more secure access controls and practices.
 
 ### 5. Create a Deta Account and Configure Data Storage
 
@@ -350,6 +354,81 @@ You'll need to create a Deta account to use the Deta version of the APIs.
 This button will only deploy the server.
 
 [![Deploy on Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/wiseaidev/code-inbox-server)
+
+
+## Frequently Asked Questions
+
+### Q1. How does the backend work?
+
+The backend operates through a series of well-defined steps to ensure secure user authentication and seamless interaction with the Nylas API. Here's a detailed breakdown of the process:
+
+1. **User Authentication Request**: It all begins when a user initiates a request to authenticate with the backend. This request is typically made when a user wants to access their Nylas-related functionalities.
+
+1. **Code Generation**: Nylas API generates a unique code for each user. This code serves as an initial identifier and is a crucial part of the authentication process.
+
+1. **Access Token Generation**: Using the generated code, the Nylas API proceeds to create a unique access token for the user. This access token is the key to unlocking authorized actions such as sending and reading emails, modifying emails, creating and editing labels, and other Nylas-related operations.
+
+1. **Backend Framework (FastAPI)**: The backend of the system, built using the FastAPI framework, plays a pivotal role in managing user authentication and requests. The backend employs dependency injection techniques to verify if a user is authenticated. When a request is received, the backend checks the presence of an access token in the Authorization header of the request.
+
+1. **Database Verification**: Once an access token is found in the request, the backend proceeds to verify its existence in the database. If the access token is present and matches a valid user record, the user becomes authorized.
+
+1. **Setting Access Token**: With a verified access token, the backend sets this token for the Nylas API client, effectively granting the user the necessary authorization to interact with their Nylas account. This access token is stored in a FastAPI state variable for future reference and use within the session.
+
+1. **Additional User Information**: Notably, the database, which in this implementation is MongoDB, is also used to store additional user information beyond what is provided by the Nylas account object. This additional data may include items such as the user's profile picture, birth date, and other relevant details.
+
+1. **Data Storage**: To efficiently manage and store various types of data, including profile images and attachments, a Deta space drive is employed. This ensures that user-specific data is organized and readily accessible for use in the application.
+
+In summary, this backend system orchestrates the flow of user requests, leverages Nylas API for authentication and authorization, utilizes a database for user-specific information, and relies on a Deta space drive for efficient data storage, creating a robust and secure environment for Nylas-related operations.
+
+### Q2. What is the purpose of OpenAI in this backend?
+
+OpenAI serves a specific and valuable purpose within this backend system. Its primary role is to generate detailed algorithmic email body in HTML format for each registered user on the platform. Here's how OpenAI contributes to the functionality and value of this system:
+
+1. **Content Generation**: OpenAI's advanced natural language processing capabilities are harnessed to automatically generate algorithmic posts in HTML format. These posts can be informative, instructional, or explanatory in nature, depending on the user's preferences and requirements using a given programming language.
+
+1. **Personalization**: OpenAI's algorithms can tailor the generated posts to each user's specific needs and interests. This personalization ensures that the content delivered to users is relevant and aligns with their individual preferences.
+
+1. **Scalability**: With OpenAI, the platform can efficiently scale content generation to accommodate a growing user base. This means that as more users register on the platform, OpenAI can continue to generate high-quality, customized posts without a significant increase in manual effort.
+
+In summary, OpenAI plays a pivotal role in enriching the platform's content offerings by automating the generation of algorithmic emails. It ensures that users receive tailored, high-quality content while also enabling the platform to scale effectively and provide a superior user experience.
+
+### Q3. Can users customize the algorithmic emails generated by OpenAI?
+
+Yes, users have the ability to customize the algorithmic emails generated by OpenAI to suit their specific requirements. They can specify preferences such as the programming language used in the generated code, the complexity of the algorithms, and the depth of explanation provided in the posts. The following is the key prompt responsible for the generation of these emails:
+
+```sh
+**Task Prompt:**
+
+As an algorithm expert, your task is to generate a comprehensive algorithm tutorial. The tutorial should cover a specific algorithmic topic of your choice (e.g., sorting algorithms, search algorithms, dynamic programming, graph algorithms, etc.) and provide in-depth explanations, code samples in {programming_language}, and relevant external links for further reading.
+
+**Instructions:**
+
+   1. Choose an algorithmic topic that you are knowledgeable about or interested in.
+   2. Create a tutorial that covers the selected topic in detail.
+   3. Your tutorial should be structured as an HTML page and include the following sections:
+
+      - Title: A clear and informative title for the tutorial.
+      - Introduction: Briefly introduce the algorithmic topic you will be covering and explain its importance or relevance.
+      - Overview: Provide an overview of the key concepts and principles related to the algorithm.
+      - Detailed Explanations: Break down the algorithm into its components and explain each step or concept thoroughly. Use clear and concise language.
+      - {programming_language} Code Samples: Include {programming_language} code examples that illustrate how the algorithm works. Ensure that the code is well-commented and easy to understand.
+      - Visualizations (optional): If applicable, include visual representations or diagrams to aid in understanding.
+      - Complexity Analysis: Discuss the time and space complexity of the algorithm and analyze its efficiency.
+      - Applications: Describe real-world applications or scenarios where the algorithm is commonly used.
+      - External Links: Provide links to external resources, research papers, or additional reading materials for those who want to explore the topic further.
+      - Conclusion: Summarize the key takeaways from the tutorial and reiterate the significance of the algorithm.
+
+   4. Ensure that your HTML page is well-structured, with appropriate headings, paragraphs, and code formatting.
+   5. Use hyperlinks to connect sections, references, and external links.
+   6. Make use of proper HTML tags for formatting and styling, such as headings, lists, and code blocks.
+   7. Proofread and edit your tutorial for clarity, accuracy, and completeness.
+
+**Note:** Make sure to choose a unique algorithmic topic every day. Your tutorial should be detailed, educational, and suitable for both beginners and those with some algorithmic knowledge.
+```
+
+### Q4. What programming languages are supported for algorithm generation by OpenAI?
+
+OpenAI supports a wide range of programming languages for algorithm generation. Users can specify their preferred programming language when requesting algorithmic posts. Commonly supported languages include Python, Java, JavaScript, C++, and more.
 
 ## Core Dependencies
 
