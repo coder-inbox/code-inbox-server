@@ -317,19 +317,21 @@ Make sure you've forked this project on GitHub. If it's not already, fork this r
 #### Step 2: Deploy to Render
 
 1. Log in to your Render account.
-   ![Register for an OpenAI Account](static/openai-website.png)
+   ![Log in to your Render account](static/render-login.png)
 
-1. Click the "New" button on the Render dashboard to create a new environment.
-   ![Register for an OpenAI Account](static/openai-website.png)
+1. Click the "New" button on the Render dashboard to create a new web service.
+   ![New web service](static/render-create-new.png)
 
 1. Connect your Git repository to Render by selecting the repository and branch you want to deploy.
-   ![Register for an OpenAI Account](static/openai-website.png)
+   ![connect github](connect-github.png)
+   ![setup render](setup-render.png)
+   ![start command](start-command.png)
 
 1. Configure the environment variables you need for this FastAPI application.
-   ![Register for an OpenAI Account](static/openai-website.png)
+   ![environment variables](environment-variables.png)
 
 1. Click the "Create Web Service" button.
-   ![Register for an OpenAI Account](static/openai-website.png)
+   ![Create Web Service](static/render-create-service.png)
 
 Render will automatically build and deploy this FastAPI application based on these configuration.
 
