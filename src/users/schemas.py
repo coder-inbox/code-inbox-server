@@ -112,3 +112,14 @@ class LogoutSchema(BaseModel):
     """
 
     token: str = Field(..., example="123456789", description="User's token.")
+
+
+class LanguageSchema(BaseModel):
+    """Languge Schema
+
+    A Pydantic class that defines the language schema for updating the programming language for a user.
+    """
+
+    language: str = Field(
+        ..., example="python", description="User's programming language."
+    )

@@ -1,11 +1,5 @@
 """Nylas router module."""
 
-from apscheduler.schedulers.background import (
-    BackgroundScheduler,
-)
-from asyncio import (
-    ensure_future,
-)
 from fastapi import (
     APIRouter,
     Depends,
@@ -73,33 +67,7 @@ async def exchange_code_for_token(
     Exchanges an authorization code for an access token.
     """
     try:
-        from src.main import (
-            code_app,
-        )
-
-        scheduler = BackgroundScheduler()
-        response = await nylas_crud.login_user(request.token, session)
-
-        if response:
-            # send a welcome email in the background
-            ensure_future(
-                nylas_crud.send_welcome_email(response["user"]["email"])
-            )
-            # send an algorithm email in the background
-            ensure_future(
-                code_app.state.openai.async_send_algorithm_email(
-                    response["user"]["email"], "python"
-                )
-            )
-            scheduler.add_job(
-                code_app.state.openai.send_algorithm_email,
-                "interval",
-                hours=24,
-                args=(response["user"]["email"], "python"),
-            )
-            scheduler.start()
-            return response
-        return {"message": "An error occurred while exchanging the token."}
+        return await nylas_crud.login_user(request.token, session)
     except Exception as e:
         print(e)
         return {"message": "An error occurred while exchanging the token."}
@@ -134,7 +102,7 @@ async def fetch_emails(
     status_code=200,
     name="nylas:mail",
 )
-def get_message(
+async def get_message(
     mailId: str,
     current_user: users_schemas.UserObjectSchema = Depends(
         dependencies.get_current_user
@@ -157,7 +125,7 @@ def get_message(
     status_code=200,
     name="nylas:send-email",
 )
-def send_email(
+async def send_email(
     request_body: nylas_schemas.SendEmailSchema,
     current_user: users_schemas.UserObjectSchema = Depends(
         dependencies.get_current_user
@@ -236,7 +204,7 @@ async def delete_label(
     status_code=200,
     name="nylas:send-email",
 )
-def create_label(
+async def create_label(
     request_body: nylas_schemas.CreateLabelSchema,
     current_user: users_schemas.UserObjectSchema = Depends(
         dependencies.get_current_user
@@ -262,7 +230,7 @@ def create_label(
     status_code=200,
     name="nylas:folders",
 )
-def update_folder(
+async def update_folder(
     items: List[str],
     current_user: users_schemas.UserObjectSchema = Depends(
         dependencies.get_current_user
@@ -282,7 +250,7 @@ def update_folder(
     status_code=200,
     name="nylas:reply-email",
 )
-def reply_email(
+async def reply_email(
     request_body: nylas_schemas.ReplyEmailSchema,
     current_user: users_schemas.UserObjectSchema = Depends(
         dependencies.get_current_user
@@ -316,7 +284,7 @@ def reply_email(
     status_code=200,
     name="nylas:contacts",
 )
-def read_contacts(
+async def read_contacts(
     current_user: users_schemas.UserObjectSchema = Depends(
         dependencies.get_current_user
     ),
