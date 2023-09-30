@@ -38,7 +38,7 @@ class OpenAIAPI:
     api_token: str
     model: str = "gpt-3.5-turbo"
     temperature: float = 0
-    max_tokens: int = 128
+    max_tokens: int = 512
     top_p: float = 1
     frequency_penalty: float = 0
     presence_penalty: float = 0.6
@@ -56,31 +56,43 @@ class OpenAIAPI:
         self.prompt = """ # noqa: E501
             **Task Prompt:**
 
-            As an algorithm expert, your task is to generate a comprehensive algorithm tutorial. The tutorial should cover a specific algorithmic topic of your choice (e.g., sorting algorithms, search algorithms, dynamic programming, graph algorithms, etc.) and provide in-depth explanations, code samples in {programming_language}, and relevant external links for further reading.
+            As an algorithm expert, your mission is to craft a comprehensive algorithm tutorial. Your tutorial should delve into a specific algorithmic topic of your choice, such as sorting algorithms, search algorithms, dynamic programming, graph algorithms, or any other area of expertise you possess.
 
             **Instructions:**
 
-            1. Choose an algorithmic topic that you are knowledgeable about or interested in.
-            2. Create a tutorial that covers the selected topic in detail.
-            3. Your tutorial should be structured as an HTML page and include the following sections:
+            1. **Choose Your Algorithm:** Select a unique, different algorithmic topic each time that piques your interest or falls within your domain of expertise.
 
-               - Title: A clear and informative title for the tutorial.
-               - Introduction: Briefly introduce the algorithmic topic you will be covering and explain its importance or relevance.
-               - Overview: Provide an overview of the key concepts and principles related to the algorithm.
-               - Detailed Explanations: Break down the algorithm into its components and explain each step or concept thoroughly. Use clear and concise language.
-               - {programming_language} Code Samples: Include {programming_language} code examples that illustrate how the algorithm works. Ensure that the code is well-commented and easy to understand.
-               - Visualizations (optional): If applicable, include visual representations or diagrams to aid in understanding.
-               - Complexity Analysis: Discuss the time and space complexity of the algorithm and analyze its efficiency.
-               - Applications: Describe real-world applications or scenarios where the algorithm is commonly used.
-               - External Links: Provide links to external resources, research papers, or additional reading materials for those who want to explore the topic further.
-               - Conclusion: Summarize the key takeaways from the tutorial and reiterate the significance of the algorithm.
+            2. **Craft Your Tutorial:** Your tutorial should be structured as an HTML document, and it must encompass the following sections:
 
-            4. Ensure that your HTML page is well-structured, with appropriate headings, paragraphs, and code formatting.
-            5. Use hyperlinks to connect sections, references, and external links.
-            6. Make use of proper HTML tags for formatting and styling, such as headings, lists, and code blocks.
-            7. Proofread and edit your tutorial for clarity, accuracy, and completeness.
+               - **Title:** Create a captivating and informative title that encapsulates the essence of your tutorial.
 
-            **Note:** Make sure to choose a unique algorithmic topic every day. Your tutorial should be detailed, educational, and suitable for both beginners and those with some algorithmic knowledge.
+               - **Introduction:** Begin with a concise introduction to the chosen algorithmic topic. Explain why this algorithm is significant and relevant in the world of computer science.
+
+               - **Overview:** Provide an overview that outlines the fundamental principles and concepts related to the algorithm. Offer a high-level understanding before diving into the specifics.
+
+               - **In-Depth Explanation:** Break down the algorithm into its core components, and meticulously elucidate each step or concept. Utilize clear and succinct language to ensure your readers can grasp the material effortlessly.
+
+               - **{programming_language} Code Samples:** Embed code examples written in {programming_language} to illustrate the algorithm's inner workings. Ensure your code is well-commented and easily comprehensible. Make sure that your code samples are written in {programming_language}. Don't use any other programming language.
+
+               - **Visualizations (optional):** If applicable, consider incorporating visual aids such as diagrams or flowcharts to facilitate understanding.
+
+               - **Complexity Analysis:** Engage in a comprehensive discussion about the time and space complexity of the algorithm. Analyze its efficiency and performance.
+
+               - **Real-World Applications:** Explore real-world scenarios and use cases where the algorithm finds common application. Make the algorithm's practicality tangible to your readers.
+
+               - **External Resources:** Enhance your tutorial by offering links to external resources, research papers, or supplementary reading materials for those eager to delve deeper into the subject.
+
+               - **Conclusion:** Summarize the key takeaways from your tutorial, reaffirming the algorithm's importance and relevance.
+
+            3. **Structural Integrity:** Ensure that your HTML page is meticulously structured with appropriate headings, well-organized paragraphs, and clean code formatting.
+
+            4. **Hyperlink Integration:** Employ hyperlinks to seamlessly connect sections, cross-reference content, and provide quick access to external resources.
+
+            5. **HTML Tags for Enhancement:** Utilize proper HTML tags to enhance formatting and styling. Leverage headings, lists, and code blocks to make your content visually appealing and reader-friendly.
+
+            6. **Proofreading and Refinement:** Before finalizing your tutorial, meticulously proofread and edit it to guarantee clarity, accuracy, and comprehensiveness.
+
+            **Note:** Challenge yourself to explore a unique algorithmic topic each day. Your tutorial should serve as an educational resource catering to both beginners and those possessing some prior knowledge of algorithms. Also, make sure that your tutorial code samples are written in {programming_language}. Don't use any other programming language.
         """
 
     def send_algorithm_email(self, to: str, language: str) -> None:

@@ -112,7 +112,7 @@ async def update_user_info(
         {
             "full_name": personal_info.full_name,
             "bio": personal_info.bio,
-            "proramming_language": personal_info.proramming_language,
+            "programming_language": personal_info.programming_language,
             "modified_date": datetime.utcnow(),
         }
     )

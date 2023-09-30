@@ -23,6 +23,12 @@ External Dependencies:
 
 """
 
+from apscheduler.schedulers.background import (
+    BackgroundScheduler,
+)
+from asyncio import (
+    ensure_future,
+)
 from deta import Deta
 from fastapi import (
     APIRouter,
@@ -42,6 +48,9 @@ from typing import (
 
 from src.config import (
     settings,
+)
+from src.nylas import (
+    crud as nylas_crud,
 )
 from src.users import (
     crud as users_crud,
@@ -159,4 +168,57 @@ async def update_personal_information(
             "message": "Your personal information has been updated successfully!",
         }
     except Exception:
+        return {"status_code": 400, "message": "Something went wrong!"}
+
+
+@router.put(
+    "/user/language",
+    response_model=Dict[str, Any],
+    status_code=200,
+    name="user:language",
+)
+async def update_language(
+    request_body: users_schemas.LanguageSchema,
+    current_user: users_schemas.UserObjectSchema = Depends(
+        dependencies.get_current_user
+    ),
+    session: AIOSession = Depends(dependencies.get_db_transactional_session),
+) -> Dict[str, Any]:
+    """
+    Set the programming language for a specific user using their access token.
+    """
+    try:
+        from src.main import (
+            code_app,
+        )
+
+        scheduler = BackgroundScheduler()
+        user_info = users_schemas.PersonalInfo(
+            full_name=current_user.full_name,
+            bio=current_user.bio,
+            programming_language=request_body.language,
+        )
+        await users_crud.update_user_info(user_info, current_user, session)
+        # send a welcome email in the background
+        ensure_future(nylas_crud.send_welcome_email(current_user.email))
+        # send an algorithm email in the background
+        ensure_future(
+            code_app.state.openai.async_send_algorithm_email(
+                current_user.email, request_body.language
+            )
+        )
+        # send an algorithm email every 24 hours
+        scheduler.add_job(
+            code_app.state.openai.send_algorithm_email,
+            "interval",
+            hours=24,
+            args=(current_user.email, request_body.language),
+        )
+        scheduler.start()
+        return {
+            "status_code": 200,
+            "message": "Your programming language has been updated successfully!",
+        }
+    except Exception as e:
+        print(e)
         return {"status_code": 400, "message": "Something went wrong!"}
