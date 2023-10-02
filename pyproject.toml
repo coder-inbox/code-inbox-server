@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "code-inbox-server"
+name = "src"
 version = "0.1.0"
 description = "A fully async based backend for Code Inbox built using FastAPI, MongoDB, Pydantic, ODMantic and Deta."
 authors = ["wiseaidev <business@wiseai.dev>"]
@@ -18,8 +18,6 @@ classifiers = [
 keywords = ["python", "fastapi", "MongoDB", "ODMantic", "Deta", "Code Inbox"]
 packages = [
     { include = "src" },
-    { include = "LICENSE" },
-    { include = "README.md" },
 ]
 
 [tool.poetry.dependencies]
