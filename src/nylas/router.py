@@ -85,7 +85,7 @@ async def fetch_emails(
     ),
 ) -> List[Dict[str, Any]]:
     """
-    Retrieve the first 5 threads of the authenticated account from the Nylas API.
+    Retrieve the first 20 threads of the authenticated account from the Nylas API.
     """
     from src.main import (
         code_app,
@@ -295,3 +295,42 @@ async def read_contacts(
 
     # todo
     return []
+
+
+@router.get(
+    "/nylas/search-emails",
+    response_model=List[Dict[str, Any]],
+    status_code=200,
+    name="nylas:search-emails",
+)
+async def search_emails(
+    search: str,
+    current_user: users_schemas.UserObjectSchema = Depends(
+        dependencies.get_current_user
+    ),
+) -> List[Dict[str, Any]]:
+    """
+    Retrieve the seached emails threads of the authenticated account from the Nylas API.
+    """
+    from src.main import (
+        code_app,
+    )
+
+    # A workaround to retrieve threads associated with discovered messages because the
+    # `messages.search(search, limit=20)` method returns individual messages, not threads.
+    # Therefore, we iterate through the threads and select the ones containing message IDs.
+    threads = code_app.state.nylas.threads.where(
+        limit=20, view="expanded"
+    ).all()
+    messages = code_app.state.nylas.messages.search(search, limit=20)
+    message_ids = set(message["id"] for message in messages)
+    # Filter threads that contain at least one message from the list of messages
+    threads_with_messages = [
+        thread
+        for thread in threads
+        if any(message["id"] in message_ids for message in thread["_messages"])
+    ]
+    res_json = [
+        item.as_json(enforce_read_only=False) for item in threads_with_messages
+    ]
+    return res_json
