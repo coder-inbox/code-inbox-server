@@ -109,7 +109,8 @@ source .venv/bin/activate
 make install
 ```
 
-**Note**: _This command will automatically generate a `.env` file from `.env.example`, uninstall the old version of poetry on your machine, then install latest version `1.6.1`, and install the required main dependencies._
+> **Note**<br>
+This command will automatically generate a `.env` file from `.env.example`, uninstall the old version of poetry on your machine, then install latest version `1.6.1`, and install the required main dependencies._
 
 ### 4. Setup a MongoDB Account and Configure Your Database
 
@@ -557,6 +558,10 @@ As an algorithm expert, your mission is to craft a comprehensive algorithm tutor
 ### Q4. What programming languages are supported for algorithm generation by OpenAI?
 
 OpenAI supports a wide range of programming languages for algorithm generation. Users can specify their preferred programming language when requesting algorithmic posts. Commonly supported languages include Python, Java, JavaScript, C++, and more.
+
+### Q5: How can I set the maximum tokens for the OpenAI API when making requests?
+
+Controlling the maximum algorithmic email length can be achieved by setting the maximum number of tokens allowed in the generated text, namely [`max_tokens`](https://github.com/coder-inbox/code-inbox-server/blob/main/src/utils/openai_api.py#L41). Tokens are units of text that can be as short as one character or as long as one word. To control email length, set the parameter `max_tokens` to a value that ensures your email content remains within the token limit. For example, if the token limit is 1024 tokens, you might set `max_tokens` to 1024.
 
 ---
 

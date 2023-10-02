@@ -38,7 +38,7 @@ class OpenAIAPI:
     api_token: str
     model: str = "gpt-3.5-turbo"
     temperature: float = 0
-    max_tokens: int = 512
+    max_tokens: int = 1024
     top_p: float = 1
     frequency_penalty: float = 0
     presence_penalty: float = 0.6
