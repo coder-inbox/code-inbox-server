@@ -1,9 +1,12 @@
 """Nylas router module."""
 
+import asyncio
 from fastapi import (
     APIRouter,
     Depends,
+    HTTPException,
 )
+import httpx
 from odmantic.session import (
     AIOSession,
 )
@@ -28,6 +31,15 @@ from src.utils import (
 )
 
 router = APIRouter(prefix="/api/v1")
+
+JUDGE0_API_URL = "https://judge0-ce.p.rapidapi.com/submissions"
+
+headers = {
+    "X-RapidAPI-Key": settings().RAPIDAPI_KEY,
+    "Content-Type": "application/json",
+}
+
+submission_status_dict = {}
 
 
 @router.post(
@@ -334,3 +346,77 @@ async def search_emails(
         item.as_json(enforce_read_only=False) for item in threads_with_messages
     ]
     return res_json
+
+
+@router.post(
+    "/nylas/execute-code",
+    response_model=None,
+    status_code=200,
+    name="nylas:execute-code",
+)
+async def execute_code(
+    request_body: nylas_schemas.CodeExecutionSchema,
+    current_user: users_schemas.UserObjectSchema = Depends(
+        dependencies.get_current_user
+    ),
+) -> Any:
+    try:
+        payload = {
+            "source_code": request_body.code,
+            "language_id": int(request_body.language_id),
+            "stdin": "",
+            "expected_output": "",
+            "cpu_time_limit": 2,
+            "cpu_extra_time": 0.5,
+            "wall_time_limit": 5,
+            "memory_limit": 512000,
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                JUDGE0_API_URL,
+                json=payload,
+                headers=headers,
+            )
+
+        if response.status_code == 201:
+            submission_token = response.json()["token"]
+            submission_status_dict[submission_token] = "Running"
+            timeout = 60
+            start_time = asyncio.get_event_loop().time()
+            result = None
+            while submission_status_dict.get(submission_token) == "Running":
+                await asyncio.sleep(1)
+
+                if asyncio.get_event_loop().time() - start_time > timeout:
+                    print("Timeout")
+                    submission_status_dict[submission_token] = "Timeout"
+                    break
+
+                async with httpx.AsyncClient() as client:
+                    new_response = await client.get(
+                        f"{JUDGE0_API_URL}/{submission_token}",
+                        headers=headers,
+                    )
+
+                if new_response.status_code == 200:
+                    print(new_response.json())
+                    submission_stdout = new_response.json()["stdout"]
+                    if submission_stdout:
+                        print("Finished")
+                        submission_status_dict[submission_token] = "Finished"
+                        result = new_response.json()
+                        break
+                else:
+                    return HTTPException(
+                        status_code=500, detail="Failed to retrieve result"
+                    )
+            return result
+        else:
+            return HTTPException(
+                status_code=500, detail="Code execution failed"
+            )
+
+    except Exception as e:
+        print(e)
+        return HTTPException(status_code=500, detail=str(e))

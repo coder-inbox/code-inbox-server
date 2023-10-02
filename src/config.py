@@ -29,6 +29,7 @@ class Settings(BaseSettings):
         DETA_PROJECT_KEY (str) : A Deta project key.
         NYLAS_SYSTEM_TOKEN (str) : A Nylas access token for sending email as system.
         OPENAI_API_KEY (str) : An openai api key for generating emails.
+        RAPIDAPI_KEY (str): Rapid api key
 
     Example:
         >>> MONGODB_HOST=svc-123456789.svc.MONGODB.com
@@ -40,6 +41,7 @@ class Settings(BaseSettings):
         >>> DETA_PROJECT_KEY=12312dSDJHJSBA
         >>> NYLAS_SYSTEM_TOKEN=12312dSDJHJSBA
         >>> OPENAI_API_KEY=12312dSDJHJSBA
+        >>> RAPIDAPI_KEY=12312dSDJHJSBA
     """
 
     MONGODB_HOST: str = os.getenv("MONGODB_HOST")  # type: ignore
@@ -55,6 +57,7 @@ class Settings(BaseSettings):
     CLIENT_URI: str = os.getenv("CLIENT_URI")  # type: ignore
     NYLAS_SYSTEM_TOKEN: str = os.getenv("NYLAS_SYSTEM_TOKEN")  # type: ignore
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")  # type: ignore
+    RAPIDAPI_KEY: str = os.getenv("RAPIDAPI_KEY")  # type: ignore
 
     class Config:  # pylint: disable=R0903
         """
