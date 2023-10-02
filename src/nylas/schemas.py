@@ -84,3 +84,8 @@ class ReplyEmailSchema(BaseModel):
         ..., description="thread id", example="6gq33fhrgpts8wmb2sl98jdvo"
     )
     body: str = Field(..., description="email body", example="Hello there!")
+
+
+class CodeExecutionSchema(BaseModel):
+    code: str = Field(..., description="code", example="print('hi')")
+    language_id: str = Field(..., description="language id", example="71")
