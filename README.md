@@ -404,6 +404,8 @@ Ensure you set the following environment variables in your Render environment fo
 
 - `OPENAI_API_KEY`
 
+- `RAPIDAPI_KEY`
+
 Make sure to securely store and manage these environment variables in your Render environment settings for security and proper functionality of your FastAPI server.
 
 ### Deploy locally with Compose v2
