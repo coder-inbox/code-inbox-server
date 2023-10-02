@@ -293,7 +293,7 @@ To use Judge0 RapidAPI, you'll need to create a RapidAPI account:
 
 1. Go to [RapidAPI](https://rapidapi.com/hub).
 1. Click "Sign Up" to create your RapidAPI account.
-   ![rapid api](static/jrapid-api.png)
+   ![rapid api](static/rapid-api.png)
 
 #### 8.2. Search for Judge0 CE
 
