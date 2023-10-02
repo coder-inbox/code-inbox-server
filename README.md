@@ -283,7 +283,53 @@ Now that you have generated your OpenAI API key, you'll need to configure it in 
 
 By setting the `OPENAI_API_KEY` environment variable, your application will have the necessary credentials to authenticate and interact with the OpenAI API. This API key allows your application to access OpenAI's language models and services securely.
 
-### 8. Run The Project Locally
+---
+
+### 8. Create a RapidAPI Account
+
+To use Judge0 RapidAPI, you'll need to create a RapidAPI account:
+
+#### 8.1. Register for RapidAPI
+
+1. Go to [RapidAPI](https://rapidapi.com/hub).
+1. Click "Sign Up" to create your RapidAPI account.
+   ![rapid api](static/jrapid-api.png)
+
+#### 8.2. Search for Judge0 CE
+
+1. In the marketplace, search for "Judge0 CE."
+   ![judge0 api](static/judge0.png)
+
+#### 8.3. Subscribe to the API
+
+1. Click "Subscribe to Test".
+1. Choose a plan.
+   ![judge0 api](static/judge0-api.png)
+
+After subscribing, you'll receive an API key for Judge0 RapidAPI.
+
+#### 8.4. Configure Your Judge0 RAPIDAPI API Key
+
+Now that you've obtained your Judge0 RapidAPI API key, it's time to configure it in your project:
+
+1. **Access Your Project Configuration:** Open the configuration file of your project, the `.env` file.
+
+2. **Set the RAPIDAPI Key:** Inside your configuration file, set the following environment variable, replacing `<Your_Judge0_API_Key>` with the actual API key you received from Judge0 RapidAPI:
+
+   ```yaml
+   # Judge0 RapidAPI
+   RAPIDAPI_KEY=<Your_Judge0_API_Key>
+   ```
+
+   - Make sure to save the changes to your configuration file.
+
+By setting the `RAPIDAPI_KEY` environment variable, your application will be properly configured to authenticate and communicate with the Judge0 RapidAPI securely. This API key grants access to Judge0's code execution and evaluation capabilities.
+
+For more details, refer to the [official documentation](https://rapidapi.com/judge0-official/api/judge0-ce).
+
+---
+
+### 9. Run The Project Locally
 
 ```sh
 make run
