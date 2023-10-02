@@ -402,6 +402,8 @@ Wait until the client service becomes available:
 code-inbox-client-1      | Starting the development server...
 ```
 
+![docker compose](static/docker-compose.png)
+
 You can stop the running containers but issuing the following command on a separate terminal session:
 
 ```
