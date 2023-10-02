@@ -1,0 +1,3 @@
+[submodule "code-inbox"]
+	path = code-inbox
+	url = https://github.com/coder-inbox/code-inbox
