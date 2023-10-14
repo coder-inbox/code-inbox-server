@@ -159,7 +159,6 @@ async def send_email(
         draft["bcc"] = [{"email": request_body.bcc}]
     draft["body"] = request_body.message
     draft["from"] = [{"email": current_user.email}]
-    print(draft)
     message = draft.send()
     return message
 
@@ -205,7 +204,6 @@ async def delete_label(
 
     removed_item = code_app.state.nylas.labels.delete(id=item_id)
     if removed_item:
-        print(f"Removed item: {removed_item}")
         return {"message": "Item deleted"}
     return {"message": "Item not found"}
 
@@ -389,7 +387,6 @@ async def execute_code(
                 await asyncio.sleep(1)
 
                 if asyncio.get_event_loop().time() - start_time > timeout:
-                    print("Timeout")
                     submission_status_dict[submission_token] = "Timeout"
                     break
 
@@ -403,7 +400,6 @@ async def execute_code(
                     print(new_response.json())
                     submission_stdout = new_response.json()["stdout"]
                     if submission_stdout:
-                        print("Finished")
                         submission_status_dict[submission_token] = "Finished"
                         result = new_response.json()
                         break

@@ -18,7 +18,7 @@ A Fully Async-based backend for [Code Inbox](https://github.com/wiseaidev/code-i
 ## Development Requirements
 
 - Make (GNU command)
-- Python (>= 3.9)
+- Python (>= 3.9.10)
 - Poetry (1.6)
 
 ---

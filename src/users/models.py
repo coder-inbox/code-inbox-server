@@ -104,6 +104,13 @@ class User(Model):
     calendar: Optional[str] = Field(
         default="", description="User's calendar ID."
     )
+    schedule: Optional[str] = Field(
+        default="every day", description="User's schedule."
+    )
+    welcome: Optional[str] = Field(
+        default="not sent",
+        description="User's welcome email status, sent or not sent.",
+    )
     user_status: Optional[UserStatus] = Field(
         default=UserStatus.ACTIVE.value, description="User's status."
     )

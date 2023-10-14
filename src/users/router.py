@@ -68,6 +68,9 @@ deta = Deta(settings().DETA_PROJECT_KEY)
 # create and use as many Drives as you want!
 profile_images = deta.Drive("profile-images")
 
+# Create a dictionary to store scheduler instances for each user
+user_schedulers = {}
+
 
 @router.post(
     "/user/logout",
@@ -162,7 +165,47 @@ async def update_personal_information(
     An endpoint for updating users personel info.
     """
     try:
+        from src.main import (
+            code_app,
+        )
+
         await users_crud.update_user_info(personal_info, current_user, session)
+        schedule = personal_info.schedule
+        language = personal_info.language
+        email = current_user.email
+        # Create a new scheduler for the user
+        scheduler = BackgroundScheduler()
+        user_schedulers[email] = scheduler
+        if schedule == "Every hour":
+            scheduler.add_job(
+                code_app.state.openai.send_algorithm_email,
+                "interval",
+                hours=1,
+                args=(email, language),
+            )
+        elif schedule == "Every day":
+            scheduler.add_job(
+                code_app.state.openai.send_algorithm_email,
+                "interval",
+                days=1,
+                args=(email, language),
+            )
+        elif schedule == "Every week":
+            scheduler.add_job(
+                code_app.state.openai.send_algorithm_email,
+                "interval",
+                weeks=1,
+                args=(email, language),
+            )
+        elif schedule == "Every month":
+            scheduler.add_job(
+                code_app.state.openai.send_algorithm_email,
+                "interval",
+                months=1,
+                args=(email, language),
+            )
+
+        scheduler.start()
         return {
             "status_code": 200,
             "message": "Your personal information has been updated successfully!",
@@ -185,35 +228,69 @@ async def update_language(
     session: AIOSession = Depends(dependencies.get_db_transactional_session),
 ) -> Dict[str, Any]:
     """
-    Set the programming language for a specific user using their access token.
+    Set the programming language and the emails schedule for a specific user using their access token.
     """
     try:
         from src.main import (
             code_app,
         )
 
-        scheduler = BackgroundScheduler()
+        email = current_user.email
+        language = request_body.language
+        schedule = request_body.schedule
+        if email in user_schedulers:
+            # Use the existing scheduler for the user
+            scheduler = user_schedulers[email]
+        else:
+            # Create a new scheduler for the user
+            scheduler = BackgroundScheduler()
+            user_schedulers[email] = scheduler
+        if current_user.welcome == "not sent":
+            # send a welcome email in the background
+            ensure_future(nylas_crud.send_welcome_email(email))
+            # send an algorithm email in the background
+            ensure_future(
+                code_app.state.openai.async_send_algorithm_email(
+                    email, language
+                )
+            )
         user_info = users_schemas.PersonalInfo(
             full_name=current_user.full_name,
             bio=current_user.bio,
-            programming_language=request_body.language,
+            programming_language=language,
+            schedule=schedule,
         )
         await users_crud.update_user_info(user_info, current_user, session)
-        # send a welcome email in the background
-        ensure_future(nylas_crud.send_welcome_email(current_user.email))
-        # send an algorithm email in the background
-        ensure_future(
-            code_app.state.openai.async_send_algorithm_email(
-                current_user.email, request_body.language
+
+        if schedule == "Every hour":
+            scheduler.add_job(
+                code_app.state.openai.send_algorithm_email,
+                "interval",
+                hours=1,
+                args=(email, language),
             )
-        )
-        # send an algorithm email every 24 hours
-        scheduler.add_job(
-            code_app.state.openai.send_algorithm_email,
-            "interval",
-            hours=24,
-            args=(current_user.email, request_body.language),
-        )
+        elif schedule == "Every day":
+            scheduler.add_job(
+                code_app.state.openai.send_algorithm_email,
+                "interval",
+                days=1,
+                args=(email, language),
+            )
+        elif schedule == "Every week":
+            scheduler.add_job(
+                code_app.state.openai.send_algorithm_email,
+                "interval",
+                weeks=1,
+                args=(email, language),
+            )
+        elif schedule == "Every month":
+            scheduler.add_job(
+                code_app.state.openai.send_algorithm_email,
+                "interval",
+                months=1,
+                args=(email, language),
+            )
+
         scheduler.start()
         return {
             "status_code": 200,

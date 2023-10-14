@@ -103,6 +103,9 @@ class PersonalInfo(BaseModel):
     programming_language: str = Field(
         ..., example="python", description="User's programming language."
     )
+    schedule: str = Field(
+        ..., example="Every hour", description="User's schedule."
+    )
 
 
 class LogoutSchema(BaseModel):
@@ -122,4 +125,14 @@ class LanguageSchema(BaseModel):
 
     language: str = Field(
         ..., example="python", description="User's programming language."
+    )
+
+    schedule: str = Field(
+        ..., example="Every hour", description="User's schedule."
+    )
+
+    welcome: bool = Field(
+        ...,
+        example=True,
+        description="A field that indicates whether of not the user should receive a welcome message.",
     )
