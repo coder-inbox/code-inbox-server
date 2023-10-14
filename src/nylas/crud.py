@@ -145,7 +145,6 @@ async def login_user(token: str, session: AIOSession) -> Dict[str, Any]:
     email_address = access_token_obj["email_address"]
 
     user_obj = await find_existed_user(email_address, session)
-    print(user_obj)
 
     if not user_obj:
         await create_user(email_address, session)

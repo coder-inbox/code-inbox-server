@@ -113,6 +113,8 @@ async def update_user_info(
             "full_name": personal_info.full_name,
             "bio": personal_info.bio,
             "programming_language": personal_info.programming_language,
+            "schedule": personal_info.schedule,
+            "welcome": "sent",
             "modified_date": datetime.utcnow(),
         }
     )
