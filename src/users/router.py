@@ -201,7 +201,7 @@ async def update_personal_information(
             scheduler.add_job(
                 code_app.state.openai.send_algorithm_email,
                 "interval",
-                months=1,
+                days=30,
                 args=(email, language),
             )
 
@@ -287,7 +287,7 @@ async def update_language(
             scheduler.add_job(
                 code_app.state.openai.send_algorithm_email,
                 "interval",
-                months=1,
+                months=30,
                 args=(email, language),
             )
 
