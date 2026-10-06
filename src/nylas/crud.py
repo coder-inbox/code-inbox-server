@@ -22,6 +22,7 @@ Functions:
     login_user: Fetch and return serialized user info upon logging in.
     find_existed_token: Find a token in a token list.
 """
+
 from bson import (
     ObjectId,
 )
