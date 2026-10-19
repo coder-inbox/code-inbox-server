@@ -14,7 +14,6 @@ Dependencies:
 
 """
 
-
 from fastapi import (
     FastAPI,
 )
